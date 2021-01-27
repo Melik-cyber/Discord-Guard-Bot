@@ -6,7 +6,7 @@ const fs = require("fs");
 const moment = require("moment");
 const Jimp = require("jimp");
 const db = require("quick.db");
-var prefix = ayarlar.prefix;
+var prefix = process.env.prefix;
 
 client.on("ready", () => {
   console.log(`Bot suan bu isimle aktif: ${client.user.tag}!`);
@@ -17,6 +17,32 @@ const log = message => {
 };
 
 ///////////// KOMUTLAR BAŞ
+
+/////////////////// ROL KORUMA //////////////////////////////
+
+client.on("roleDelete", async role => {
+  let kanal = await db.fetch(`rolk_${role.guild.id}`);
+  if (!kanal) return;
+  const entry = await role.guild
+    .fetchAuditLogs({ type: "ROLE_DELETE" })
+    .then(audit => audit.entries.first());
+  if (entry.executor.id == client.user.id) return;
+  if (entry.executor.id == role.guild.owner.id) return;
+  if(!entry.executor.hasPermission('ROLE_DELETE')) {
+      role.guild.roles.create({
+    name: role.name,
+    color: role.hexColor,
+    permissions: role.permissions
+  });
+   let nobles = new Discord.MessageEmbed()
+   .setColor('0x36393E')
+   .setTitle(`Bir rol silindi !`)
+   .setDescription(`Silinen rol adı ${role.name}, Rol koruma sistemi açık olduğu için rol geri oluşturuldu!`)
+   client.channels.cache.get(kanal).send(nobles)
+  }
+});
+
+/////////////////// ROL KORUMA //////////////////////////////
 
 ////////////// KOMUTLAR SON
 ////////////// ALTI ELLEME

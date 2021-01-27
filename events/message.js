@@ -3,7 +3,7 @@ module.exports = async message => {
   let client = message.client;
   let prefix =
     (await require("quick.db").fetch(`prefix_${message.guild.id}`)) ||
-    ayarlar.prefix;
+    process.env.prefix;
   if (message.author.bot) return;
   if (!message.content.startsWith(prefix)) return;
   let command = message.content.split(" ")[0].slice(prefix.length);
