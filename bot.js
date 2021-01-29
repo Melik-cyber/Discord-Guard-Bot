@@ -21,29 +21,64 @@ const log = message => {
 
 /////////////////// ROL KORUMA //////////////////////////////
 
-client.on("roleDelete", async role => {
-  let kanal = await db.fetch(`rolk_${role.guild.id}`);
-  if (!kanal) return;
-  const entry = await role.guild
-    .fetchAuditLogs({ type: "ROLE_DELETE" })
-    .then(audit => audit.entries.first());
-  if (entry.executor.id == client.user.id) return;
-  if (entry.executor.id == role.guild.owner.id) return;
-  if (!entry.executor.hasPermission("ROLE_DELETE")) {
-    role.guild.roles.create({
-      name: role.name,
-      color: role.hexColor,
-      permissions: role.permissions
-    });
-    let nobles = new Discord.MessageEmbed()
-      .setColor("0x36393E")
-      .setTitle(`Bir rol silindi !`)
-      .setDescription(
-        `Silinen rol adı ${role.name}, Rol koruma sistemi açık olduğu için rol geri oluşturuldu!`
-      );
-    client.channels.cache.get(kanal).send(nobles);
-  }
-});
+client.on("roleDelete", async (role) => {
+  let guild = role.guild;
+  if(!guild.me.hasPermission("MANAGE_ROLES")) return;
+  let koruma = db.fetch(`korumaacik_${role.guild.id}`)
+  if(koruma == null) return; 
+  let e = await guild.fetchAuditLogs({type: 'ROLE_DELETE'});
+  let member = guild.members.cache.get(e.entries.first().executor.id);
+  if(!member) return;
+  if(member.hasPermission("ADMINISTRATOR")) return;
+  let mention = role.mentionable;
+  let hoist = role.hoist;
+  let color = role.hexColor;
+  let name = role.name;
+  let perms = role.permissions;
+  let position = role.position
+  role.guild.roles.create({
+    name: name,
+    color: color,
+    hoist: hoist,
+    position: position,
+    permissions: perms,
+    mentionable: mention
+  }).then(rol => {
+    if(!db.has(`korumalog_${guild.id}`)) return;
+    let logs = guild.channels.cache.find(ch => ch.id === db.fetch(`korumalog_${guild.id}`));
+    if(!logs) return db.delete(`korumalog_${guild.id}`); else {
+      const embed = new Discord.MessageEmbed()
+      .setDescription(`Silinen Rol: <@&${rol.id}> (Yeniden oluşturuldu!)\nSilen Kişi: ${member.user}`)
+      .setColor('RED')
+      .setAuthor(member.user.tag, member.user.displayAvatarURL())
+      logs.send(embed);
+    }
+})
+  
+  
+  
+})
+client.on("channelDelete", async channel => {
+  if(!channel.guild.me.hasPermission("MANAGE_CHANNELS")) return;
+  let guild = channel.guild;
+  const logs = await channel.guild.fetchAuditLogs({ type: 'CHANNEL_DELETE' })
+  let member = guild.members.cache.get(logs.entries.first().executor.id);
+  if(!member) return;
+  if(member.hasPermission("ADMINISTRATOR")) return;
+  channel.clone(channel.name, true, true, "Kanal silme koruması sistemi").then(async klon => {
+    if(!db.has(`korumalog_${guild.id}`)) return;
+    let logs = guild.channels.cache.find(ch => ch.id === db.fetch(`korumalog_${guild.id}`));
+    if(!logs) return db.delete(`korumalog_${guild.id}`); else {
+      const embed = new Discord.MessageEmbed()
+      .setDescription(`Silinen Kanal: <#${klon.id}> (Yeniden oluşturuldu!)\nSilen Kişi: ${member.user}`)
+      .setColor('RED')
+      .setAuthor(member.user.tag, member.user.displayAvatarURL())
+      logs.send(embed);
+    }
+    await klon.setParent(channel.parent);
+    await klon.setPosition(channel.position);
+  })
+})
 
 /////////////////// ROL KORUMA //////////////////////////////
 
