@@ -6,6 +6,7 @@ const fs = require("fs");
 const moment = require("moment");
 const Jimp = require("jimp");
 const db = require("quick.db");
+const token = process.env.token;
 var prefix = process.env.prefix;
 
 client.on("ready", () => {
@@ -28,17 +29,19 @@ client.on("roleDelete", async role => {
     .then(audit => audit.entries.first());
   if (entry.executor.id == client.user.id) return;
   if (entry.executor.id == role.guild.owner.id) return;
-  if(!entry.executor.hasPermission('ROLE_DELETE')) {
-      role.guild.roles.create({
-    name: role.name,
-    color: role.hexColor,
-    permissions: role.permissions
-  });
-   let nobles = new Discord.MessageEmbed()
-   .setColor('0x36393E')
-   .setTitle(`Bir rol silindi !`)
-   .setDescription(`Silinen rol adı ${role.name}, Rol koruma sistemi açık olduğu için rol geri oluşturuldu!`)
-   client.channels.cache.get(kanal).send(nobles)
+  if (!entry.executor.hasPermission("ROLE_DELETE")) {
+    role.guild.roles.create({
+      name: role.name,
+      color: role.hexColor,
+      permissions: role.permissions
+    });
+    let nobles = new Discord.MessageEmbed()
+      .setColor("0x36393E")
+      .setTitle(`Bir rol silindi !`)
+      .setDescription(
+        `Silinen rol adı ${role.name}, Rol koruma sistemi açık olduğu için rol geri oluşturuldu!`
+      );
+    client.channels.cache.get(kanal).send(nobles);
   }
 });
 
@@ -48,7 +51,6 @@ client.on("roleDelete", async role => {
 ////////////// ALTI ELLEME
 require("./util/eventLoader")(client);
 
-client.login(ayarlar.token);
 
 client.commands = new Discord.Collection();
 client.aliases = new Discord.Collection();
@@ -140,4 +142,4 @@ client.on("error", e => {
   console.log(chalk.bgRed(e.replace(regToken, "that was redacted")));
 });
 
-client.login(ayarlar.token);
+client.login(token);
