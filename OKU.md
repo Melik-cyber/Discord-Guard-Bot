@@ -4,6 +4,11 @@
 
 [Nobles Discord Sunucusuna Gitmek İçin Tıkla](https://discord.gg/Rs5ss84)
 
+# Doldurulması Gerek Yerler
+
+- ayarlar.json
+- spam-koruma-ayarları.json
+
 # Bilgiler
 
 Oynuyor events/ready.js İçinde
@@ -17,3 +22,5 @@ Oynuyor events/ready.js İçinde
 - Kanal Koruma
 - Ddos Koruma
 - Spam Koruma
+- Anti Raid
+- Reklam Engelle
