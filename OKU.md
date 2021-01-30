@@ -16,3 +16,4 @@ Oynuyor events/ready.js İçinde
 - Rol Koruma
 - Kanal Koruma
 - Ddos Koruma
+- Spam Koruma

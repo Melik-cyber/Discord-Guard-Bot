@@ -163,19 +163,44 @@ if(client.ws.ping > 2500) {
 const antispam = require("discord-anti-spam-tr");
 
 antispam(client, {
-  uyarmaSınırı: 4,
-  banlamaSınırı: 7,
-  aralık: 1000,
-  uyarmaMesajı: "Spamı Durdur Yoksa Mutelerim.",
-  rolMesajı: "Spam için yasaklandı, başka biri var mı?",
-  maxSpamUyarı: 8,
-  maxSpamBan: 12,
-  zaman: 7,
-  rolİsimi: "spam-susturulmuş"
+  uyarmaSınırı: spamayarlar.uyarmaSınırı,
+  banlamaSınırı: spamayarlar.banlamaSınırı,
+  aralık: spamayarlar.aralık,
+  uyarmaMesajı: spamayarlar.uyarmaMesajı,
+  rolMesajı: spamayarlar.muteMesajı,
+  maxSpamUyarı: spamayarlar.maxSpamUyarı,
+  maxSpamBan: spamayarlar.maxSpamBan,
+  zaman: spamayarlar.zaman,
+  rolİsimi: spamayarlar.rolİsimi
 });
 
 //////////////// SPAM KORUMA ///////////////////////
 
+//////////////// ANTİ RAİD /////////////////////
+
+client.on("guildMemberAdd", async member => {
+let kanal = await db.fetch(`antiraidK_${member.guild.id}`)== "anti-raid-aç"
+  if (!kanal) return;  
+  var noples = member.guild.owner
+  if (member.user.bot === true) {
+     if (db.fetch(`botizin_${member.guild.id}.${member.id}`) == "aktif") {
+    let abi = new Discord.MessageEmbed()
+      .setColor("RANDOM")
+      .setThumbnail(member.user.avatarURL())
+      .setDescription(`**${member.user.tag}** (${member.id}) adlı bota bir yetkili verdi eğer kaldırmak istiyorsanız **${prefix}bot-izni kaldır botun_id**.`);
+    noples.send(abi);
+     } else {
+       let izinverilmemişbot = new Discord.MessageEmbed()
+      .setColor("RANDOM")
+      .setThumbnail(member.user.avatarURL())
+      .setDescription("**" + member.user.tag +"**" + " (" + member.id+ ") " + "adlı bot sunucuya eklendi ve banladım eğer izin vermek istiyorsanız **" + prefix + "bot-izni ver botun_id**")
+       member.members.kick();
+       noples.send(izinverilmemişbot)
+}
+  }
+});
+
+//////////////// ANTİ RAİD /////////////////////
 
 ////////////// KOMUTLAR SON
 ////////////// ALTI ELLEME
