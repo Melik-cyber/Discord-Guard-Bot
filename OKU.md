@@ -24,3 +24,4 @@ Oynuyor events/ready.js İçinde
 - Spam Koruma
 - Anti Raid
 - Reklam Engelle
+- Küfür Engelle
