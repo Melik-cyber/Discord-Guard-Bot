@@ -113,22 +113,20 @@ client.on("emojiDelete", async (emoji, message) => {
 ///////////////// KANAL KORUMA /////////////////////////////
 
 client.on("channelDelete", async channel => {
-  if(!channel.guild.me.hasPermission("MANAGE_CHANNELS")) return;
-  let guild = channel.guild;
-  const logs = await channel.guild.fetchAuditLogs({ type: 'CHANNEL_DELETE' })
-  let member = guild.members.get(logs.entries.first().executor.id);
-  if(!member) return;
-  if(member.hasPermission("ADMINISTRATOR")) return;
-  channel.clone(channel.name, true, true, "Kanal silme koruması sistemi").then(async klon => {
-    if(!db.has(`korumalog_${guild.id}`)) return;
-    let logs = guild.channels.find(ch => ch.id === kanalKorumaLogKanalID));
-    if(!logs) return db.delete(`korumalog_${guild.id}`); else {
-      const embed = new Discord.RichEmbed()
-      .setDescription(`Silinen Kanal: <#${klon.id}> (Yeniden oluşturuldu!)\nSilen Kişi: ${member.user}`)
+  const logs = await channel.guild.fetchAuditLogs({ type: 'CHANNEL_DELETE' }).then(audit => audit.entries.first())
+  const deleter = await channel.guild.members.cache.get(logs.executor.id);
+  if(deleter.hasPermission("ADMINISTRATOR")) return; 
+  channel.clone(undefined, true, true, "Kanal silme koruması sistemi").then(async klon => {
+    
+    let guild = channel.guild;
+    let logs = guild.channels.cache.find(ch => ch.id === ayarlar.kanalKorumaLogKanalID);
+    
+    const embed = new Discord.MessageEmbed()
+      .setDescription(`Silinen Kanal: <#${klon.id}> (Yeniden oluşturuldu!)\nSilen Kişi: ${deleter.user}`)
       .setColor('RED')
-      .setAuthor(member.user.tag, member.user.displayAvatarURL)
+      .setAuthor(deleter.user.tag, deleter.user.displayAvatarURL())
       logs.send(embed);
-    }
+    
     await klon.setParent(channel.parent);
     await klon.setPosition(channel.position);
   })
