@@ -1,4 +1,6 @@
 {
   "prefix": "!",
-  "sahip": "SAHİP ID"
+  "sahip": "SAHİP ID",
+  
+  "rolKorumaLogKanalID": ""
 }

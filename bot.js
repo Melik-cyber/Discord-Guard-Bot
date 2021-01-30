@@ -21,9 +21,94 @@ const log = message => {
 
 /////////////////// ROL KORUMA //////////////////////////////
 
+client.on('guildMemberUpdate', async (oldMember, newMember) => {
+let guild = oldMember.guild || newMember.guild;
+  
+    let chimp = await guild.fetchAuditLogs({type: 'MEMBER_ROLES_UPDATE'});
+  
+    if(chimp) {
+      
+let asd = []
+
+oldMember.roles.cache.forEach(c => {
+if(!newMember.roles.cache.has(c.id)) {
+require('quick.db').delete(`${guild.id}.${c.id}.${oldMember.id}`)
+}
+})
+newMember.roles.cache.forEach(c => {
+if(!oldMember.roles.cache.has(c.id)) {
+require('quick.db').set(`${guild.id}.${c.id}.${newMember.id}`, 'eklendi')
+}
+  
+})
+    
+    }
+})
+
+client.on('roleDelete', async role => {
+let guild = role.guild;
+  
+  let e = await guild.fetchAuditLogs({type: 'ROLE_DELETE'});
+  let member = guild.members.cache.get(e.entries.first().executor.id);
+  //if(member.hasPermission("ADMINISTRATOR")) return;
+        
+  let mention = role.mentionable;
+  let hoist = role.hoist;
+  let color = role.hexColor;
+  let name = role.name;
+  let perms = role.permissions;
+  let position = role.position;
+  role.guild.roles.create({
+    name: name,
+    color: color,
+    hoist: hoist,
+    position: position,
+    permissions: perms,
+    mentionable: mention
+  }).then(async rol => {
+    
+  guild.members.cache.forEach(async u => {
+  const dat = await require('quick.db').fetch(`${guild.id}.${role.id}.${u.id}`)
+  if(dat) {
+
+  guild.members.cache.get(u.id).roles.add(rol.id)
+  }
+    
+  })
+client.channels.cache.get(ayarlar.rolKorumaLogKanalID).send(new Discord.MessageEmbed().setAuthor(guild.name, guild.iconURL()).setTitle(`Bir rol silindi!`)
+.setDescription(`${rol.name} isimli rol ${member} tarafından silindi ve bende tekrardan rolü oluşturdum, önceden role sahip olan tüm kişilere rolü geri verdim.`))
+  })
+  
+})
 
 
 /////////////////// ROL KORUMA //////////////////////////////
+
+////////////////// EMOJİ KORUMA ////////////////////////////
+
+client.on("emojiDelete", async (emoji, message) => {
+  
+  let kanal = await db.fetch(`emotek_${emoji.guild.id}`);
+  if (!kanal) return;
+  
+  const entry = await emoji.guild.fetchAuditLogs({ type: "EMOJI_DELETE" }).then(audit => audit.entries.first());
+  if (entry.executor.id == client.user.id) return;
+  if (entry.executor.id == emoji.guild.owner.id) return;
+  if (!emoji.guild.members.cache.get(entry.executor.id).hasPermission('ADMINISTRATOR')) {
+    
+  emoji.guild.emojis.create(`${emoji.url}`, `${emoji.name}`).catch(console.error);
+    
+   let embbed = new Discord.MessageEmbed()
+   .setColor('RANDOM')
+   .setTitle(`Bir Emoji Silindi`)
+   .setDescription(`Silinen Emoji: ${emoji.name}, Emoji Koruma Sistemi Açık Olduğundan Tekrar Eklendi!`)
+   client.channels.cache.get(kanal).send(embbed)
+  
+  }
+
+});
+
+////////////////// EMOJİ KORUMA ////////////////////////////
 
 ////////////// KOMUTLAR SON
 ////////////// ALTI ELLEME
