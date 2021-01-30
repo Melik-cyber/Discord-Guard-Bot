@@ -1,12 +1,9 @@
 {
-  "prefix": "!",
-  "sahip": "SAHİP ID",
-  "sunucuID": "747005771585159188",
+  "prefix": "",
+  "sahip": "",
+  "sunucuID": "",
   
   "rolKorumaLogKanalID": "",
-  "kanalKorumaLogKanalID": "804972021602975744",
-  "ddosKorumaLogKanalID": "",
-  
-  "kanalKorumaAlınacakRolID1": "762963782841663519",
-  "kanalKorumaAlınacakRolID2": "783628728458412032"
+  "kanalKorumaLogKanalID": "",
+  "ddosKorumaLogKanalID": ""
 }
