@@ -6,6 +6,7 @@ const fs = require("fs");
 const moment = require("moment");
 const Jimp = require("jimp");
 const db = require("quick.db");
+const spamayarlar = require("./spam-koruma-ayarları.json");
 const token = process.env.token;
 var prefix = process.env.prefix;
 
@@ -134,6 +135,47 @@ client.on("channelDelete", async channel => {
 
 
 ///////////////// KANAL KORUMA /////////////////////////////
+
+///////////////// DDOS KORUMA /////////////////////////////
+
+client.on('message', msg => {
+
+if(client.ws.ping > 2500) {
+
+            let bölgeler = ['singapore', 'eu-central', 'india', 'us-central', 'london',
+            'eu-west', 'amsterdam', 'brazil', 'us-west', 'hongkong',
+            'us-south', 'southafrica', 'us-east', 'sydney', 'frankfurt',
+            'russia']
+           let yenibölge = bölgeler[Math.floor(Math.random() * bölgeler.length)]
+           let sChannel = msg.guild.channels.cache.find(c => c.id === ayarlar.ddosKorumaLogKanalID)
+
+           sChannel.send(`Sunucu'ya Saldırı Oluyor \nSunucu Bölgesini Değiştirdim \n __**${yenibölge}**__ \n __**Sunucu Pingimiz**__ :`+ client.ws.ping)
+           msg.guild.setRegion(yenibölge)
+           .then(g => console.log(" bölge:" + g.region))
+           .then(g => msg.channel.send("bölge **"+ g.region  + " olarak değişti"))
+           .catch(console.error);
+}});
+
+///////////////// DDOS KORUMA /////////////////////////////
+
+//////////////// SPAM KORUMA ///////////////////////
+
+const antispam = require("discord-anti-spam-tr");
+
+antispam(client, {
+  uyarmaSınırı: 4,
+  banlamaSınırı: 7,
+  aralık: 1000,
+  uyarmaMesajı: "Spamı Durdur Yoksa Mutelerim.",
+  rolMesajı: "Spam için yasaklandı, başka biri var mı?",
+  maxSpamUyarı: 8,
+  maxSpamBan: 12,
+  zaman: 7,
+  rolİsimi: "spam-susturulmuş"
+});
+
+//////////////// SPAM KORUMA ///////////////////////
+
 
 ////////////// KOMUTLAR SON
 ////////////// ALTI ELLEME
