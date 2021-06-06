@@ -1,5 +1,3 @@
-#Discord-Guard-Bot
-
 - Kodların tümü bana ait değildir.
 - Geliştirilmiş bir alyapıdır.
 - Eksikleri olabilir yarım kalmış bir projedir.
