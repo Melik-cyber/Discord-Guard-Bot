@@ -1,14 +1,14 @@
 const Discord = require("discord.js");
 const client = new Discord.Client();
-const ayarlar = require("./ayarlar.json");
+const ayarlar = require('./ayarlar/bot.json')
 const chalk = require("chalk");
 const fs = require("fs");
 const moment = require("moment");
 const Jimp = require("jimp");
 const db = require("quick.db");
 const spamayarlar = require("./spam-koruma-ayarları.json");
-const token = process.env.token;
-var prefix = process.env.prefix;
+const token = ayarlar.token
+const prefix = ayarlar.token
 
 client.on("ready", () => {
   console.log(`Bot suan bu isimle aktif: ${client.user.tag}!`);
@@ -28,11 +28,11 @@ client.on("message", msg => {
             if (!msg.member.hasPermission("BAN_MEMBERS")) {
                   msg.delete();
                     return msg.reply('**Bu Sunucuda** `Reklam Engelle`** Aktif Reklam Yapmana İzin Vermem İzin Vermem ? !**').then(msg => msg.delete(3000));
-   
- 
-  msg.delete(3000);                              
- 
-            }              
+
+
+  msg.delete(3000);
+
+            }
           } catch(err) {
             console.log(err);
           }
@@ -42,8 +42,8 @@ client.on("message", msg => {
 /////////////////////////
 
 client.on("message", async msg => {
-  
-  
+
+
  const i = await db.fetch(`kufur_${msg.guild.id}`)
     if (i == "acik") {
         const kufur = ["oç", "amk", "ananı sikiyim", "ananıskm", "piç", "amk", "amsk", "sikim", "sikiyim", "orospu çocuğu", "piç kurusu", "kahpe", "orospu", "mal", "sik", "yarrak", "am", "amcık", "amık", "yarram", "sikimi ye", "mk", "mq", "aq", "ak", "amq",];
@@ -51,9 +51,9 @@ client.on("message", async msg => {
           try {
             if (!msg.member.hasPermission("BAN_MEMBERS")) {
                   msg.delete();
-                          
+
                       return msg.reply('Bu Sunucuda Küfür Filtresi Aktiftir.')
-            }              
+            }
           } catch(err) {
             console.log(err);
           }
@@ -63,8 +63,8 @@ client.on("message", async msg => {
 });
 
 client.on("messageUpdate", (oldMessage, newMessage) => {
-  
-  
+
+
  const i = db.fetch(`${oldMessage.guild.id}.kufur`)
     if (i) {
         const kufur = ["oç", "amk", "ananı sikiyim", "ananıskm", "piç", "amk", "amsk", "sikim", "sikiyim", "orospu çocuğu", "piç kurusu", "kahpe", "orospu", "mal", "sik", "yarrak", "am", "amcık", "amık", "yarram", "sikimi ye", "mk", "mq", "aq", "ak", "amq",];
@@ -72,9 +72,9 @@ client.on("messageUpdate", (oldMessage, newMessage) => {
           try {
             if (!oldMessage.member.hasPermission("BAN_MEMBERS")) {
                   oldMessage.delete();
-                          
+
                       return oldMessage.reply('Bu Sunucuda Küfür Filtresi Aktiftir.')
-            }              
+            }
           } catch(err) {
             console.log(err);
           }
@@ -87,11 +87,11 @@ client.on("messageUpdate", (oldMessage, newMessage) => {
 
 client.on('guildMemberUpdate', async (oldMember, newMember) => {
 let guild = oldMember.guild || newMember.guild;
-  
+
     let chimp = await guild.fetchAuditLogs({type: 'MEMBER_ROLES_UPDATE'});
-  
+
     if(chimp) {
-      
+
 let asd = []
 
 oldMember.roles.cache.forEach(c => {
@@ -103,19 +103,19 @@ newMember.roles.cache.forEach(c => {
 if(!oldMember.roles.cache.has(c.id)) {
 require('quick.db').set(`${guild.id}.${c.id}.${newMember.id}`, 'eklendi')
 }
-  
+
 })
-    
+
     }
 })
 
 client.on('roleDelete', async role => {
 let guild = role.guild;
-  
+
   let e = await guild.fetchAuditLogs({type: 'ROLE_DELETE'});
   let member = guild.members.cache.get(e.entries.first().executor.id);
   //if(member.hasPermission("ADMINISTRATOR")) return;
-        
+
   let mention = role.mentionable;
   let hoist = role.hoist;
   let color = role.hexColor;
@@ -130,19 +130,19 @@ let guild = role.guild;
     permissions: perms,
     mentionable: mention
   }).then(async rol => {
-    
+
   guild.members.cache.forEach(async u => {
   const dat = await require('quick.db').fetch(`${guild.id}.${role.id}.${u.id}`)
   if(dat) {
 
   guild.members.cache.get(u.id).roles.add(rol.id)
   }
-    
+
   })
 client.channels.cache.get(ayarlar.rolKorumaLogKanalID).send(new Discord.MessageEmbed().setAuthor(guild.name, guild.iconURL()).setTitle(`Bir rol silindi!`)
 .setDescription(`${rol.name} isimli rol ${member} tarafından silindi ve bende tekrardan rolü oluşturdum, önceden role sahip olan tüm kişilere rolü geri verdim.`))
   })
-  
+
 })
 
 
@@ -151,23 +151,23 @@ client.channels.cache.get(ayarlar.rolKorumaLogKanalID).send(new Discord.MessageE
 ////////////////// EMOJİ KORUMA ////////////////////////////
 
 client.on("emojiDelete", async (emoji, message) => {
-  
+
   let kanal = await db.fetch(`emotek_${emoji.guild.id}`);
   if (!kanal) return;
-  
+
   const entry = await emoji.guild.fetchAuditLogs({ type: "EMOJI_DELETE" }).then(audit => audit.entries.first());
   if (entry.executor.id == client.user.id) return;
   if (entry.executor.id == emoji.guild.owner.id) return;
   if (!emoji.guild.members.cache.get(entry.executor.id).hasPermission('ADMINISTRATOR')) {
-    
+
   emoji.guild.emojis.create(`${emoji.url}`, `${emoji.name}`).catch(console.error);
-    
+
    let embbed = new Discord.MessageEmbed()
    .setColor('RANDOM')
    .setTitle(`Bir Emoji Silindi`)
    .setDescription(`Silinen Emoji: ${emoji.name}, Emoji Koruma Sistemi Açık Olduğundan Tekrar Eklendi!`)
    client.channels.cache.get(kanal).send(embbed)
-  
+
   }
 
 });
@@ -179,18 +179,18 @@ client.on("emojiDelete", async (emoji, message) => {
 client.on("channelDelete", async channel => {
   const logs = await channel.guild.fetchAuditLogs({ type: 'CHANNEL_DELETE' }).then(audit => audit.entries.first())
   const deleter = await channel.guild.members.cache.get(logs.executor.id);
-  if(deleter.hasPermission("ADMINISTRATOR")) return; 
+  if(deleter.hasPermission("ADMINISTRATOR")) return;
   channel.clone(undefined, true, true, "Kanal silme koruması sistemi").then(async klon => {
-    
+
     let guild = channel.guild;
     let logs = guild.channels.cache.find(ch => ch.id === ayarlar.kanalKorumaLogKanalID);
-    
+
     const embed = new Discord.MessageEmbed()
       .setDescription(`Silinen Kanal: <#${klon.id}> (Yeniden oluşturuldu!)\nSilen Kişi: ${deleter.user}`)
       .setColor('RED')
       .setAuthor(deleter.user.tag, deleter.user.displayAvatarURL())
       logs.send(embed);
-    
+
     await klon.setParent(channel.parent);
     await klon.setPosition(channel.position);
   })
@@ -243,7 +243,7 @@ antispam(client, {
 
 client.on("guildMemberAdd", async member => {
 let kanal = await db.fetch(`antiraidK_${member.guild.id}`)== "anti-raid-aç"
-  if (!kanal) return;  
+  if (!kanal) return;
   var noples = member.guild.owner
   if (member.user.bot === true) {
      if (db.fetch(`botizin_${member.guild.id}.${member.id}`) == "aktif") {

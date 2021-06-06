@@ -5,7 +5,7 @@ exports.run = async (bot, message, args) => {
   if (!args[0]) return message.channel.send('Hey Bu Ayarı Kullanabilmek için `aç` yada `kapat` yazmalısın.')
   if(!ayarlar.includes(args[0])) return message.channel.send(`Geçerli parametreleri kullanmalısın.\nParametreler: ${ayarlar.join(' - ')}`)
   if (!message.member.hasPermission('MANAGE_GUILD')) return message.channel.send('`SUNUCUYU_YÖNET` yetkisine sahip olmalısın!')
- 
+
   if (args[0] == 'aç') {
     if(db.has(`reklam_${message.guild.id}`)) return message.channel.send(`Sistem zaten açık.`)
     db.set(`reklam_${message.guild.id}`, 'acik')
@@ -16,18 +16,18 @@ exports.run = async (bot, message, args) => {
     db.delete(`reklam_${message.guild.id}`)
       message.channel.send('Reklam Engel başarıyla kapatıldı! Artık herkes reklam yapabilir.')
   }
- 
+
 };
- 
+
 exports.conf = {
   enabled: true,
   guildOnly: false,
   aliases: ['advertisement','reklam'],
   permLevel: 0
 };
- 
+
 exports.help = {
-  name: 'reklam-engelle',
+  name: 'reklamengel',
   description: '[Admin Komutu]',
-  usage: 'reklam-engelle'
+  usage: 'reklamengel'
 };

@@ -1,4 +1,4 @@
-const ayarlar = require("../ayarlar.json");
+const ayarlar = require("../ayarlar/bot.json");
 module.exports = async message => {
   let client = message.client;
   let prefix =
@@ -13,7 +13,7 @@ module.exports = async message => {
   if (client.commands.has(command)) {
     cmd = client.commands.get(command);
   } else if (client.aliases.has(command)) {
-    cmd = client.commands.get(client.aliases.get(command));
+    cmd = client.commands.get(client.aliases.get(command));e
   }
   if (cmd) {
     if (perms < cmd.conf.permLevel) return;
