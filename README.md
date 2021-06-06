@@ -1,4 +1,4 @@
-#Discord Guard Bot
+#Discord-Guard-Bot
 
 - Kodların tümü bana ait değildir.
 - Geliştirilmiş bir alyapıdır.
